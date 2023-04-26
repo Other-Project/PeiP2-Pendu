@@ -1,0 +1,104 @@
+body {
+    display: grid;
+    grid-template: auto 1fr / 1fr 2fr;
+    margin: 0;
+    height: 100vh;
+}
+
+body > * {
+    padding: 0.5rem;
+}
+
+header {
+    grid-column: 1 / 4;
+
+    background-color: whitesmoke;
+    box-shadow: 1px 1px lightgray;
+
+    display: grid;
+    grid-template: 1fr / 1fr auto;
+    align-items: center;
+}
+
+aside {
+    display: grid;
+    justify-content: center;
+    align-content: center;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2em;
+}
+
+.notDisplayed, template {
+    display: none;
+}
+
+#pendu {
+    fill: transparent;
+    stroke: black;
+    stroke-width: 5px;
+    stroke-linecap: round;
+}
+
+#mot {
+    display: flex;
+    gap: 1em;
+    justify-content: center;
+}
+
+#mot .lettre {
+    width: 3rem;
+    height: 3rem;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+}
+
+#mot .lettre > * {
+    border-bottom: 2px solid black;
+    font-size: 35px;
+    width: 25px;
+    height: 35px;
+}
+
+#clavier {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+#clavier .lettreClavier {
+    width: 2rem;
+    height: 2rem;
+
+    background-color: whitesmoke;
+    box-shadow: 1px 1px lightgray;
+    border: none;
+    border-radius: 5px;
+
+    display: grid;
+    place-items: center;
+}
+
+#clavier .lettreClavier:not(.good):not(.wrong) {
+    cursor: pointer;
+}
+
+#clavier .lettreClavier > span {
+    font-weight: bold;
+    user-select: none;
+}
+
+#clavier .lettreClavier.good > span {
+    color: lightgrey;
+}
+
+#clavier .lettreClavier.wrong > span {
+    color: lightcoral;
+}

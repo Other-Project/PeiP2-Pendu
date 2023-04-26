@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pendu</title>
+    <link href="style.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<header>
+    <h1>Pendu</h1>
+
+    <button id="jouer">Jouer</button>
+    <div id="stats" class="notDisplayed">
+        <p>Nombre d'erreurs: <span id="nbErreur"></span></p>
+        <p>Essais restants: <span id="essaisRestants"></span></p>
+    </div>
+</header>
+<aside class="notDisplayed">
+    <svg height="250" width="200" id="pendu">
+        <!-- Potence -->
+        <line x1="20" y1="230" x2="100" y2="230" class="notDisplayed"/>
+        <line x1="60" y1="20" x2="60" y2="230" class="notDisplayed"/>
+        <line x1="60" y1="20" x2="140" y2="20" class="notDisplayed"/>
+        <line x1="140" y1="20" x2="140" y2="50" class="notDisplayed"/>
+        <!-- Tete -->
+        <circle cx="140" cy="70" r="20" class="notDisplayed"/>
+        <!-- Corps -->
+        <line x1="140" y1="90" x2="140" y2="150" class="notDisplayed"/>
+        <!-- Bras -->
+        <line x1="140" y1="120" x2="120" y2="100" class="notDisplayed"/>
+        <line x1="140" y1="120" x2="160" y2="100" class="notDisplayed"/>
+        <!-- Jambes -->
+        <line x1="140" y1="150" x2="120" y2="180" class="notDisplayed"/>
+        <line x1="140" y1="150" x2="160" y2="180" class="notDisplayed"/>
+    </svg>
+</aside>
+<main class="notDisplayed">
+    <div id="mot">
+        <template id="lettre-template">
+            <div class="lettre"><span></span></div>
+        </template>
+    </div>
+    <div id="clavier">
+        <template id="lettreClavier-template">
+            <div class="lettreClavier"><span></span></div>
+        </template>
+    </div>
+</main>
+<script src="script.js" defer></script>
+</body>
+</html>
