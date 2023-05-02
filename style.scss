@@ -99,10 +99,14 @@ header {
             grid-column: 1/4;
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 0.25em;
         }
 
         #message {
+            @media(max-width: 600px) {
+                margin: 0;
+            }
             margin: 0 0 .5em;
         }
 

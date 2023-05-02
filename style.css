@@ -72,9 +72,13 @@ header {
       grid-column: 1/4;
       display: flex;
       justify-content: center;
+      align-items: center;
       gap: 0.25em; } }
   header #action #message {
     margin: 0 0 .5em; }
+    @media (max-width: 600px) {
+      header #action #message {
+        margin: 0; } }
   header #action #jouer {
     width: 8rem;
     height: 2rem; }
