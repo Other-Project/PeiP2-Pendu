@@ -1,37 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Pendu</title>
-    <link href="style.css" type="text/css" rel="stylesheet">
+    <meta charset="UTF-8"/>
+
+    <title>Jeu du Pendu</title>
+    <link href="icon.png" rel="icon" type="image/png"/>
+    <meta content="Un jeu du pendu en ligne" name="description"/>
+    <meta content="Evan Galli" name="author"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet"/>
 </head>
 <body>
 <header>
-    <h1>Pendu</h1>
+    <div style="display: grid;grid-template: 1fr / auto auto 1fr;align-items: center;gap: 0.5em;">
+        <h1 style="margin: 0; display: inline-block;">Jeu du Pendu</h1>
+        <button id="theme"></button>
+    </div>
 
-    <button id="jouer">Jouer</button>
-    <div id="stats" class="notDisplayed">
-        <p>Nombre d'erreurs: <span id="nbErreur"></span></p>
-        <p>Essais restants: <span id="essaisRestants"></span></p>
+
+    <div style="text-align: center;">
+        <p class="notDisplayed" id="message" style="margin: 0 0 .5em;"></p>
+        <button id="jouer" style="width: 8rem; height: 2rem;">Jouer</button>
+    </div>
+
+    <div style="text-align: right;">
+        <div class="notDisplayed" id="stats">
+            <p>Nombre d'erreurs: <span id="nbErreur"></span></p>
+            <p>Essais restants: <span id="essaisRestants"></span></p>
+        </div>
     </div>
 </header>
 <aside class="notDisplayed">
-    <svg height="250" width="200" id="pendu">
+    <svg height="100%" id="pendu" viewBox="0 0 400 500" width="100%">
         <!-- Potence -->
-        <line x1="20" y1="230" x2="100" y2="230" class="notDisplayed"/>
-        <line x1="60" y1="20" x2="60" y2="230" class="notDisplayed"/>
-        <line x1="60" y1="20" x2="140" y2="20" class="notDisplayed"/>
-        <line x1="140" y1="20" x2="140" y2="50" class="notDisplayed"/>
+        <line x1="40" x2="200" y1="460" y2="460"/>
+        <line x1="120" x2="120" y1="40" y2="460"/>
+        <line x1="120" x2="280" y1="40" y2="40"/>
+        <line x1="120" x2="200" y1="120" y2="40"></line>
+        <line x1="280" x2="280" y1="40" y2="100"/>
         <!-- Tete -->
-        <circle cx="140" cy="70" r="20" class="notDisplayed"/>
+        <circle class="perso" cx="280" cy="140" r="40"/>
         <!-- Corps -->
-        <line x1="140" y1="90" x2="140" y2="150" class="notDisplayed"/>
+        <line class="perso" x1="280" x2="280" y1="180" y2="300"/>
         <!-- Bras -->
-        <line x1="140" y1="120" x2="120" y2="100" class="notDisplayed"/>
-        <line x1="140" y1="120" x2="160" y2="100" class="notDisplayed"/>
+        <line class="perso" x1="280" x2="240" y1="240" y2="200"/>
+        <line class="perso" x1="280" x2="320" y1="240" y2="200"/>
         <!-- Jambes -->
-        <line x1="140" y1="150" x2="120" y2="180" class="notDisplayed"/>
-        <line x1="140" y1="150" x2="160" y2="180" class="notDisplayed"/>
+        <line class="perso" x1="280" x2="240" y1="300" y2="360"/>
+        <line class="perso" x1="280" x2="320" y1="300" y2="360"/>
     </svg>
 </aside>
 <main class="notDisplayed">
@@ -42,10 +62,15 @@
     </div>
     <div id="clavier">
         <template id="lettreClavier-template">
-            <div class="lettreClavier"><span></span></div>
+            <button class="lettreClavier"><span></span></button>
         </template>
     </div>
 </main>
-<script src="script.js" defer></script>
+<footer>
+    <small class="notDisplayed" style="color:grey;">Astuce: Vous pouvez aussi taper les lettres au clavier</small>
+    <p style="text-align: center;">&copy; 2023 Evan Galli</p>
+</footer>
+<script defer src="devtools-detect.js"></script>
+<script defer src="script.js"></script>
 </body>
 </html>
