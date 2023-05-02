@@ -21,7 +21,7 @@ html[data-theme=light] {
 body {
   font-family: 'Rubik', sans-serif;
   display: grid;
-  grid-template: auto 1fr auto / 1fr 2fr;
+  grid-template: auto 1fr 1fr auto / 1fr;
   background-image: url(pattern.svg);
   background-color: var(--body);
   background-repeat: repeat;
@@ -29,26 +29,69 @@ body {
   color: var(--text);
   margin: 0;
   height: 100vh; }
+  @media (min-width: 1024px) {
+    body {
+      grid-template: auto 1fr auto / 1fr 2fr; } }
   body > * {
     padding: 0.5rem; }
 
 header {
-  grid-column: 1 / 3;
   background-color: var(--primary);
   box-shadow: 0 0 10px var(--primary-shadow);
   padding: .25rem 2rem;
   height: 5.5rem;
   display: grid;
-  grid-template: 1fr / 1fr 1fr 1fr;
+  grid-template: 1fr 1fr / auto 1fr;
   align-items: center; }
-  header #theme {
-    width: 2rem;
-    height: 2rem;
-    padding: 0; }
+  @media (min-width: 1024px) {
+    header {
+      grid-column: 1 / 3; } }
+  @media (min-width: 600px) {
+    header {
+      grid-template: 1fr / 1fr 1fr 1fr; } }
+  header > :first-child {
+    display: grid;
+    grid-template: 1fr / auto auto 1fr;
+    align-items: center;
+    gap: 0.5em; }
+    @media (max-width: 600px) {
+      header > :first-child {
+        grid-row: -1; } }
+    header > :first-child #title {
+      margin: 0;
+      display: inline-block; }
+      @media (max-width: 600px) {
+        header > :first-child #title {
+          display: none; } }
+    header > :first-child #theme {
+      width: 2rem;
+      height: 2rem;
+      padding: 0; }
+  @media (max-width: 600px) {
+    header #action {
+      grid-column: 1/4;
+      display: flex;
+      justify-content: center;
+      gap: 0.25em; } }
+  header #action #message {
+    margin: 0 0 .5em; }
+  header #action #jouer {
+    width: 8rem;
+    height: 2rem; }
+  header #stats {
+    text-align: right; }
+    @media (max-width: 600px) {
+      header #stats {
+        grid-row: -1;
+        grid-column: -1; }
+        header #stats > p {
+          margin: 0; } }
 
 footer {
-  grid-column: 1 / 3;
-  grid-row: 4; }
+  grid-row: -1; }
+  @media (min-width: 1024px) {
+    footer {
+      grid-column: 1 / 3; } }
 
 aside {
   display: grid;
@@ -86,8 +129,9 @@ a, a:hover, a:focus {
 
 #mot {
   display: flex;
-  gap: 1em;
-  justify-content: center; }
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1em; }
   #mot .lettre {
     width: 3rem;
     height: 3rem;
@@ -107,7 +151,7 @@ a, a:hover, a:focus {
   align-content: flex-start;
   justify-content: center;
   gap: .75em;
-  width: 700px;
+  max-width: 700px;
   margin: 0 auto; }
   #clavier .lettreClavier {
     width: 4rem;

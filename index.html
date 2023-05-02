@@ -16,22 +16,19 @@
 </head>
 <body>
 <header>
-    <div style="display: grid;grid-template: 1fr / auto auto 1fr;align-items: center;gap: 0.5em;">
-        <h1 style="margin: 0; display: inline-block;">Jeu du Pendu</h1>
+    <div>
+        <h1 id="title">Jeu du Pendu</h1>
         <button id="theme"></button>
     </div>
 
-
-    <div style="text-align: center;">
-        <p class="notDisplayed" id="message" style="margin: 0 0 .5em;"></p>
-        <button id="jouer" style="width: 8rem; height: 2rem;">Jouer</button>
+    <div id="action" style="text-align: center;">
+        <p class="notDisplayed" id="message"></p>
+        <button id="jouer">Jouer</button>
     </div>
 
-    <div style="text-align: right;">
-        <div class="notDisplayed" id="stats">
-            <p>Nombre d'erreurs: <span id="nbErreur"></span></p>
-            <p>Essais restants: <span id="essaisRestants"></span></p>
-        </div>
+    <div class="notDisplayed" id="stats">
+        <p>Nombre d'erreurs: <span id="nbErreur"></span></p>
+        <p>Essais restants: <span id="essaisRestants"></span></p>
     </div>
 </header>
 <aside class="notDisplayed">
