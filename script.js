@@ -1,5 +1,5 @@
 let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const dico = "https://gist.githubusercontent.com/06Games/99888ebe18dfece26826f0e0acef335f/raw/836d615117bf9b04404488878b963fb156f080be/dictionnaire.txt"; // ou simplement "dico.txt" si hébergé
+const dico = "https://other-project.github.io/PeiP2-Pendu/dico.txt";
 let word = "";
 let lettersOfTheWord = [];
 let discoveredLetters = [];
