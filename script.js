@@ -1,15 +1,10 @@
 let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const dico = "https://other-project.github.io/PeiP2-Pendu/dico.txt";
+const dico = "https://other-project.github.io/PeiP2-Pendu/dico.txt"; // https://fr.wiktionary.org/wiki/Wiktionnaire:Liste_de_1750_mots_fran%C3%A7ais_les_plus_courants
 let word = "";
 let lettersOfTheWord = [];
 let discoveredLetters = [];
 let errors = 0;
 let maxNbOfError = 0;
-
-async function fetchWordsAsync(url) {
-    let response = await fetch(url);
-    return await response.text();
-}
 
 function populateKeyboard() {
     let clavier = document.getElementById("clavier");
@@ -112,6 +107,17 @@ function updateStats() {
     document.getElementById("essaisRestants").innerText = (maxNbOfError - errors).toString();
 }
 
+async function fetchWordAsync(url) {
+    let message = document.getElementById("message");
+    message.classList.remove("notDisplayed");
+    message.innerText = "Récupération du dictionnaire";
+    let response = await fetch(url);
+    if(!response.ok) return await fetchWordAsync(url);
+    let words = (await response.text()).split('\n');
+    message.classList.add("notDisplayed");
+    return words[Math.floor(Math.random() * words.length)];
+}
+
 async function newGame() {
     let elementToBeDisplayed = document.getElementsByClassName("notDisplayed");
     while (elementToBeDisplayed.length)
@@ -121,9 +127,7 @@ async function newGame() {
     for (let partiePendu of document.getElementsByClassName("perso"))
         partiePendu.classList.add("notDisplayed");
 
-    const words = (await fetchWordsAsync(dico)).split('\n'); // https://fr.wiktionary.org/wiki/Wiktionnaire:Liste_de_1750_mots_fran%C3%A7ais_les_plus_courants
-    word = words[Math.floor(Math.random() * words.length)];
-    //word = "ANTICONSTITUTIONNELLEMENT";
+    word = await fetchWordAsync(dico);
     lettersOfTheWord = word.split('').filter(function (item, pos) {
         return word.indexOf(item) === pos; // On ne garde que la première occurrence de la lettre dans le mot
     }).sort();
