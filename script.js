@@ -62,10 +62,8 @@ function checkVictoryAndDefeat() {
     playBtn.classList.remove("notDisplayed");
     playBtn.innerText = "Rejouer";
 
-    for (let letter of document.getElementsByClassName("lettreClavier")) {
-        letter.removeEventListener("click", testLetter);
+    for (let letter of document.getElementsByClassName("lettreClavier"))
         letter.setAttribute("disabled", true);
-    }
 }
 
 function testLetter(btn) {
@@ -93,7 +91,6 @@ function testLetter(btn) {
         document.querySelector("#pendu > .notDisplayed").classList.remove("notDisplayed");
         errors++;
     }
-    btn.removeEventListener("click", testLetter);
     btn.setAttribute("disabled", true);
     updateStats();
     checkVictoryAndDefeat();
