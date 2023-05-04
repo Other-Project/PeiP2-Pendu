@@ -1,5 +1,7 @@
 let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const dico = "https://other-project.github.io/PeiP2-Pendu/dico.txt"; // https://fr.wiktionary.org/wiki/Wiktionnaire:Liste_de_1750_mots_fran%C3%A7ais_les_plus_courants
+//const dico = "https://other-project.github.io/PeiP2-Pendu/dico.txt"; // https://fr.wiktionary.org/wiki/Wiktionnaire:Liste_de_1750_mots_fran%C3%A7ais_les_plus_courants
+const getWordApi = "http://15.237.156.219/getWord";
+
 let word = "";
 let lettersOfTheWord = [];
 let discoveredLetters = [];
@@ -110,12 +112,12 @@ function updateStats() {
 async function fetchWordAsync(url) {
     let message = document.getElementById("message");
     message.classList.remove("notDisplayed");
-    message.innerText = "Récupération du dictionnaire";
+    message.innerText = "Récupération du mot";
     let response = await fetch(url);
     if(!response.ok) return await fetchWordAsync(url);
-    let words = (await response.text()).split('\n');
+    let mot = (await response.text()).toUpperCase();
     message.classList.add("notDisplayed");
-    return words[Math.floor(Math.random() * words.length)];
+    return mot;
 }
 
 async function newGame() {
@@ -127,7 +129,7 @@ async function newGame() {
     for (let partiePendu of document.getElementsByClassName("perso"))
         partiePendu.classList.add("notDisplayed");
 
-    word = await fetchWordAsync(dico);
+    word = await fetchWordAsync(getWordApi);
     lettersOfTheWord = word.split('').filter(function (item, pos) {
         return word.indexOf(item) === pos; // On ne garde que la première occurrence de la lettre dans le mot
     }).sort();
