@@ -141,19 +141,9 @@ async function newGame() {
     populateKeyboard();
     writeWord();
 }
+document.getElementById("jouer").addEventListener("click", newGame);
 
-function changeTheme(toDark){
-    document.documentElement.dataset.theme = toDark ? "dark" : "light";
-    document.getElementById("theme").innerText = toDark ? "☀" : "🌙";
-}
-changeTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
-window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', function(e) { changeTheme(e.matches); });
-document.getElementById("theme").addEventListener("click", function(){
-    changeTheme(document.documentElement.dataset.theme === "light");
-});
-window.addEventListener('devtoolschange', event => {
-    if (event.detail.isOpen) console.warn("La console a été ouverte, j'ose espérer que ce n'est pas pour tricher !");
-});
+// Shortcuts
 document.addEventListener('keydown', async function (event) {
     if(event.key === "Enter"){
         let playBtn = document.getElementById("jouer");
@@ -173,4 +163,12 @@ document.addEventListener('keyup', function (event) {
         testLetter(keyOnKeyboard);
     }
 });
-document.getElementById("jouer").addEventListener("click", newGame);
+
+// Theme
+document.documentElement.addEventListener("theme-changed", (e) => document.getElementById("theme").innerText = e.detail.dark ? "☀" : "🌙");
+document.getElementById("theme").addEventListener("click", () => changeTheme(document.documentElement.dataset.theme === "light"));
+
+// "Anti-cheat"
+window.addEventListener('devtoolschange', event => {
+    if (event.detail.isOpen) console.warn("La console a été ouverte, j'ose espérer que ce n'est pas pour tricher !");
+});
