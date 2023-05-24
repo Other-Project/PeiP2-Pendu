@@ -1,6 +1,6 @@
 let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 //const dico = "https://other-project.github.io/PeiP2-Pendu/dico.txt"; // https://fr.wiktionary.org/wiki/Wiktionnaire:Liste_de_1750_mots_fran%C3%A7ais_les_plus_courants
-const getWordApi = "http://15.237.156.219/getWord";
+const getWordApi = "/api/getWord";
 
 let word = "";
 let lettersOfTheWord = [];
