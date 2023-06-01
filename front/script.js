@@ -1,12 +1,5 @@
 let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-//const dico = "https://other-project.github.io/PeiP2-Pendu/dico.txt"; // https://fr.wiktionary.org/wiki/Wiktionnaire:Liste_de_1750_mots_fran%C3%A7ais_les_plus_courants
-const getWordApi = "/api/getWord";
-
-let word = "";
-let lettersOfTheWord = [];
 let discoveredLetters = [];
-let errors = 0;
-let maxNbOfError = 0;
 
 function populateKeyboard() {
     let clavier = document.getElementById("clavier");
@@ -28,7 +21,7 @@ function populateKeyboard() {
     }
 }
 
-function writeWord() {
+function writeWord(details) {
     let mot = document.getElementById("mot");
 
     let oldLetters = mot.getElementsByClassName("lettre");
@@ -36,25 +29,21 @@ function writeWord() {
         oldLetters[0].remove();
 
     let lettreTemplate = document.getElementById("lettre-template");
-    let found = word.split('')
-        .map(function (letter) {
-            return discoveredLetters.includes(letter) ? letter : " "
-        });
-    for (let character of found) {
+    for (let character of details["known"]) {
         let lettre = document.importNode(lettreTemplate.content, true);
         lettre.querySelector("span").innerText = character;
         mot.appendChild(lettre);
     }
 }
 
-function checkVictoryAndDefeat() {
-    let win = discoveredLetters.sort().toString() === lettersOfTheWord.toString();
-    let loose = errors >= maxNbOfError;
+function checkVictoryAndDefeat(response) {
+    let win = response["message"] === "You've wined";
+    let loose = response["message"] === "Game over";
     if (!win && !loose) return;
 
     let message = document.getElementById("message");
     message.classList.remove("notDisplayed");
-    message.innerText = win ? "Vous avez gagné" : "Vous avez perdu, le mot était " + word;
+    message.innerText = win ? "Vous avez gagné" : "Vous avez perdu, le mot était " + response["details"]["word"];
     let playBtn = document.getElementById("jouer");
     playBtn.classList.remove("notDisplayed");
     playBtn.innerText = "Rejouer";
@@ -63,9 +52,7 @@ function checkVictoryAndDefeat() {
         letter.setAttribute("disabled", true);
 }
 
-function testLetter(btn) {
-    if (errors >= maxNbOfError) return;
-
+async function testLetter(btn) {
     // We check that the data-letter attribute is valid (a letter of the alphabet)
     if (!alphabet.includes(btn.dataset.letter)) {
         // We reset the keyboard.
@@ -77,20 +64,19 @@ function testLetter(btn) {
     }
     if (btn.hasAttribute("disabled")) return;
 
-    if (word.includes(btn.dataset.letter)) {
+    let response = await fetchAsync("/api/testLetter?letter=" + btn.dataset.letter);
+    if (response["details"]["found"]) {
         console.log(btn.dataset.letter + " is in the word", discoveredLetters);
         btn.classList.add("good");
-        if (!discoveredLetters.includes(btn.dataset.letter)) discoveredLetters.push(btn.dataset.letter);
-        writeWord();
     } else {
         console.log(btn.dataset.letter + " isn't in the word");
         btn.classList.add("wrong");
         document.querySelector("#pendu > .notDisplayed").classList.remove("notDisplayed");
-        errors++;
     }
     btn.setAttribute("disabled", true);
-    updateStats();
-    checkVictoryAndDefeat();
+    writeWord(response["details"]);
+    updateStats(response["details"]);
+    checkVictoryAndDefeat(response);
 }
 
 function generateStartingPoint() {
@@ -98,26 +84,26 @@ function generateStartingPoint() {
     const maxNumberOfLetters = lettersOfTheWord.length / 2;
     const numberOfLetters = Math.floor(Math.max(Math.random() * maxNumberOfLetters, minNumberOfLetters));
     console.log("Generating " + numberOfLetters + " letter(s) in " + lettersOfTheWord);
-    for (let i = 0; i < numberOfLetters; i++){
+    for (let i = 0; i < numberOfLetters; i++) {
         let letter = lettersOfTheWord[Math.floor(Math.random() * lettersOfTheWord.length)];
         if (!discoveredLetters.includes(letter)) discoveredLetters.push(letter);
     }
 }
 
-function updateStats() {
-    document.getElementById("nbErreur").innerText = errors;
-    document.getElementById("essaisRestants").innerText = (maxNbOfError - errors).toString();
+function updateStats(details) {
+    document.getElementById("nbErreur").innerText = details["errors"];
+    document.getElementById("essaisRestants").innerText = (details["maxErrors"] - details["errors"]).toString();
 }
 
-async function fetchWordAsync(url) {
+async function fetchAsync(url) {
     let message = document.getElementById("message");
     message.classList.remove("notDisplayed");
-    message.innerText = "Récupération du mot";
+    message.innerText = "En attente du serveur";
     let response = await fetch(url);
-    if(!response.ok) return await fetchWordAsync(url);
-    let mot = (await response.text()).toUpperCase();
+    if (!response.ok) return await fetchAsync(url);
+    let mot = await response.text();
     message.classList.add("notDisplayed");
-    return mot;
+    return JSON.parse(mot);
 }
 
 async function newGame() {
@@ -129,25 +115,26 @@ async function newGame() {
     for (let partiePendu of document.getElementsByClassName("perso"))
         partiePendu.classList.add("notDisplayed");
 
-    word = await fetchWordAsync(getWordApi);
-    lettersOfTheWord = word.split('').filter(function (item, pos) {
+    let response = await fetchAsync("/api/newGame");
+    /*lettersOfTheWord = word.split('').filter(function (item, pos) {
         return word.indexOf(item) === pos; // On ne garde que la première occurrence de la lettre dans le mot
     }).sort();
     errors = 0;
-    maxNbOfError = document.getElementsByClassName("perso").length;
-    discoveredLetters = [];
-    updateStats();
-    generateStartingPoint();
+    maxNbOfError = document.getElementsByClassName("perso").length;*/
+    discoveredLetters = response["details"]["known"];
+    updateStats(response["details"]);
+    //generateStartingPoint();
     populateKeyboard();
-    writeWord();
+    writeWord(response["details"]);
 }
+
 document.getElementById("jouer").addEventListener("click", newGame);
 
 // Shortcuts
 document.addEventListener('keydown', async function (event) {
-    if(event.key === "Enter"){
+    if (event.key === "Enter") {
         let playBtn = document.getElementById("jouer");
-        if(!playBtn.classList.contains("notDisplayed")) await newGame();
+        if (!playBtn.classList.contains("notDisplayed")) await newGame();
     }
 
     let letter = event.key.toUpperCase();
