@@ -33,6 +33,14 @@ let errors = 0;
     }
 })();
 
+async function getWord(url, response){
+    let getWordResult = await tryGetWord(url, response);
+    if(!getWordResult) return;
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify(getWordResult));
+}
 async function tryGetWord(url, response, endpoint = "getWord") {
     let difficulty = url.searchParams.get("difficulty") ?? "medium";
     let min = parseInt(url.searchParams.get("minLetters") ?? defaultMin[difficulty]);
