@@ -1,8 +1,8 @@
 const fs = require("fs");
 
 const dicPath = "./lesmiserables.txt";
-const defaultMin = 6;
-const defaultMax = 8;
+const defaultMin = {"easy": 4, "medium": 6, "hard": 9};
+const defaultMax = {"easy": 6, "medium": 8, "hard": 12};
 const maxNbOfError = 6;
 let words = [];
 
@@ -33,10 +33,10 @@ let errors = 0;
     }
 })();
 
-async function getWord(url, response) {
-    let endpoint = "getWord";
-    let min = parseInt(url.searchParams.get("minLetters") ?? defaultMin);
-    let max = Math.min(parseInt(url.searchParams.get("maxLetters") ?? defaultMax), words.length - 1);
+async function tryGetWord(url, response, endpoint = "getWord") {
+    let difficulty = url.searchParams.get("difficulty") ?? "medium";
+    let min = parseInt(url.searchParams.get("minLetters") ?? defaultMin[difficulty]);
+    let max = Math.min(parseInt(url.searchParams.get("maxLetters") ?? defaultMax[difficulty]), words.length - 1);
 
     if (min > max) {
         response.statusCode = 400;
@@ -46,7 +46,7 @@ async function getWord(url, response) {
             "hint": "Check if the max length isn't smaller than the min ;)",
             "details": {"endpoint": endpoint, "min": min, "max": max}
         }));
-        return;
+        return false;
     }
     if (min > words.length) {
         response.statusCode = 400;
@@ -56,43 +56,19 @@ async function getWord(url, response) {
             "hint": "Your bounds are too high, consider lowering them.",
             "details": {"endpoint": endpoint, "min": min, "max": max, "longest_word": words.length}
         }));
-        return;
+        return false;
     }
 
     response.statusCode = 200;
     let wordLength = Math.floor(Math.random() * (max - min)) + min;
-    response.end(words[wordLength][Math.floor(Math.random() * words[wordLength].length)]);
+    return words[wordLength][Math.floor(Math.random() * words[wordLength].length)];
 }
 
 async function newGame(url, response) {
-    let endpoint = "newGame";
-    let min = parseInt(url.searchParams.get("minLetters") ?? defaultMin);
-    let max = Math.min(parseInt(url.searchParams.get("maxLetters") ?? defaultMax), words.length - 1);
+    word = await tryGetWord(url, response, "newGame");
+    if (!word) return;
 
-    if (min > max) {
-        response.statusCode = 400;
-        response.setHeader("Content-Type", "application/json");
-        response.end(JSON.stringify({
-            "message": "Invalid bounds",
-            "hint": "Check if the max length isn't smaller than the min ;)",
-            "details": {"endpoint": endpoint, "min": min, "max": max}
-        }));
-        return;
-    }
-    if (min > words.length) {
-        response.statusCode = 400;
-        response.setHeader("Content-Type", "application/json");
-        response.end(JSON.stringify({
-            "message": "Invalid bounds",
-            "hint": "Your bounds are too high, consider lowering them.",
-            "details": {"endpoint": endpoint, "min": min, "max": max, "longest_word": words.length}
-        }));
-        return;
-    }
-
-    let wordLength = Math.floor(Math.random() * (max - min)) + min;
-    word = words[wordLength][Math.floor(Math.random() * words[wordLength].length)];
-    knownLetters = Array(wordLength).fill(" ");
+    knownLetters = Array(word.length).fill(" ");
     testedLetters = [];
     errors = 0;
     console.log("New game started, word to find: " + word);
@@ -102,7 +78,7 @@ async function newGame(url, response) {
     response.end(JSON.stringify({
         "message": "New game started",
         "details": {
-            "wordLength": wordLength,
+            "wordLength": word.length,
             "errors": errors,
             "maxErrors": maxNbOfError,
             "testedLetters": testedLetters,

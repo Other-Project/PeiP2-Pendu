@@ -23,7 +23,15 @@
 
     <div id="action" style="text-align: center;">
         <p class="notDisplayed" id="message"></p>
-        <button id="jouer">Jouer</button>
+        <div class="buttonWithDropdown" id="jouer">
+            <button id="playBtn" data-difficulty="easy">Jouer (<span id="selectedDifficulty">Facile</span>)</button>
+            <button class="openDropdown">⏷</button>
+            <div class="dropdown">
+                <button data-difficulty="easy">Facile</button>
+                <button data-difficulty="medium">Moyen</button>
+                <button data-difficulty="hard">Difficile</button>
+            </div>
+        </div>
     </div>
 
     <div class="notDisplayed" id="stats">

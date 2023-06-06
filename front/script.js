@@ -46,7 +46,7 @@ function checkVictoryAndDefeat(response) {
     message.innerText = win ? "Vous avez gagné" : "Vous avez perdu, le mot était " + response["details"]["word"];
     let playBtn = document.getElementById("jouer");
     playBtn.classList.remove("notDisplayed");
-    playBtn.innerText = "Rejouer";
+    playBtn.getElementById("playBtn").innerText = "Rejouer";
 
     for (let letter of document.getElementsByClassName("lettreClavier"))
         letter.setAttribute("disabled", true);
@@ -115,7 +115,8 @@ async function newGame() {
     for (let partiePendu of document.getElementsByClassName("perso"))
         partiePendu.classList.add("notDisplayed");
 
-    let response = await fetchAsync("/api/newGame");
+    let difficulty = document.getElementById("playBtn").dataset.difficulty;
+    let response = await fetchAsync(`/api/newGame?difficulty=${difficulty}`);
     /*lettersOfTheWord = word.split('').filter(function (item, pos) {
         return word.indexOf(item) === pos; // On ne garde que la première occurrence de la lettre dans le mot
     }).sort();
@@ -128,7 +129,14 @@ async function newGame() {
     writeWord(response["details"]);
 }
 
-document.getElementById("jouer").addEventListener("click", newGame);
+let playBtn = document.getElementById("playBtn");
+playBtn.addEventListener("click", newGame);
+for (let difficultyBtn of document.querySelectorAll("#jouer .dropdown button")) {
+    difficultyBtn.addEventListener("click", () => {
+        playBtn.dataset.difficulty = difficultyBtn.dataset.difficulty;
+        document.getElementById("selectedDifficulty").innerText = difficultyBtn.innerText;
+    });
+}
 
 // Shortcuts
 document.addEventListener('keydown', async function (event) {
@@ -154,6 +162,16 @@ document.addEventListener('keyup', function (event) {
 // Theme
 document.documentElement.addEventListener("theme-changed", (e) => document.getElementById("theme").innerText = e.detail.dark ? "☀" : "🌙");
 document.getElementById("theme").addEventListener("click", () => changeTheme(document.documentElement.dataset.theme === "light"));
+
+// Dropdown
+document.querySelector(".buttonWithDropdown > .openDropdown").addEventListener("click", function (e) {
+    e.stopPropagation();
+    this.parentElement.classList.toggle("show");
+    this.innerText = this.parentElement.classList.contains("show") ? "⏶" : "⏷";
+});
+window.addEventListener("click", function() {
+    for(let dropdown of document.querySelectorAll(".buttonWithDropdown.show")) dropdown.classList.remove("show");
+});
 
 // "Anti-cheat"
 window.addEventListener('devtoolschange', event => {
