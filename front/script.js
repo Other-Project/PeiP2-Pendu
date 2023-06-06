@@ -14,8 +14,8 @@ function populateKeyboard() {
         lettreClavierBtn.id = "clavier-" + lettre;
         lettreClavierBtn.dataset.letter = lettre;
         if (discoveredLetters.includes(lettre)) lettreClavierBtn.classList.add("good");
-        else lettreClavierBtn.addEventListener("click", function () {
-            testLetter(this);
+        else lettreClavierBtn.addEventListener("click", async function () {
+            await testLetter(this);
         });
         clavier.appendChild(lettreClavier);
     }
@@ -31,7 +31,7 @@ function writeWord(details) {
     let lettreTemplate = document.getElementById("lettre-template");
     for (let character of details["known"]) {
         let lettre = document.importNode(lettreTemplate.content, true);
-        lettre.querySelector("span").innerText = character;
+        lettre.querySelector("span").innerText = character.toUpperCase();
         mot.appendChild(lettre);
     }
 }
@@ -79,6 +79,7 @@ async function testLetter(btn) {
     checkVictoryAndDefeat(response);
 }
 
+//TODO: remove this
 function generateStartingPoint() {
     const minNumberOfLetters = Math.max(lettersOfTheWord.length / 3, 1);
     const maxNumberOfLetters = lettersOfTheWord.length / 2;
