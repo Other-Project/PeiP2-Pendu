@@ -164,8 +164,3 @@ document.querySelector(".buttonWithDropdown > .openDropdown").addEventListener("
 window.addEventListener("click", function() {
     for(let dropdown of document.querySelectorAll(".buttonWithDropdown.show")) dropdown.classList.remove("show");
 });
-
-// "Anti-cheat"
-window.addEventListener('devtoolschange', event => {
-    if (event.detail.isOpen) console.warn("La console a été ouverte, j'ose espérer que ce n'est pas pour tricher !");
-});
