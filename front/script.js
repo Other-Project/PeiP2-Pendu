@@ -1,4 +1,5 @@
 let alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+let sessionId;
 
 function populateKeyboard(discoveredLetters = []) {
     let clavier = document.getElementById("clavier");
@@ -46,11 +47,12 @@ function checkVictoryAndDefeat(response) {
         "lost": "Vous avez perdu, le mot était " + response["details"]["word"]
     }[response["details"]["status"]] ?? response["message"];
 
-    if(response["details"]["status"] !== "won" && response["details"]["status"] !== "lost") return;
+    if (response["details"]["status"] !== "won" && response["details"]["status"] !== "lost") return;
     document.getElementById("jouer").classList.remove("notDisplayed");
     document.getElementById("playBtn").innerText = "Rejouer";
     for (let letter of document.getElementsByClassName("lettreClavier"))
         letter.setAttribute("disabled", true);
+    sessionId = null;
 }
 
 async function testLetter(btn) {
@@ -65,7 +67,7 @@ async function testLetter(btn) {
     }
     if (btn.hasAttribute("disabled")) return;
 
-    let response = await fetchAsync("/api/testLetter?letter=" + btn.dataset.letter);
+    let response = await fetchAsync(`/api/testLetter?session=${sessionId}&letter=${btn.dataset.letter}`);
     if (!response) return; // Request has failed, do nothing
     checkVictoryAndDefeat(response);
     if (response["code"] >= 400) return;
@@ -100,8 +102,7 @@ async function fetchAsync(url, retryCount = 3) {
     if (!response.ok && response.status >= 500) {  // Only retry if the error is server-side, because for a client-side error, retrying won't fix anything
         console.error(`Request errored, retrying (${retryCount--} attempt(s) remaining)`);
         return await fetchAsync(url, retryCount);
-    }
-    else if(!response.ok) console.warn(`Invalid request`);
+    } else if (!response.ok) console.warn(`Invalid request`);
     let responseBody = JSON.parse(await response.text());
     responseBody["code"] = response.status;
     message.classList.add("notDisplayed");
@@ -109,11 +110,11 @@ async function fetchAsync(url, retryCount = 3) {
 }
 
 async function newGame() {
-
     let difficulty = document.getElementById("playBtn").dataset.difficulty;
     let response = await fetchAsync(`/api/newGame?difficulty=${difficulty}`);
     if (!response) return; // Request has failed, do nothing
 
+    sessionId = response["details"]["session"];
     let elementToBeDisplayed = document.getElementsByClassName("notDisplayed");
     while (elementToBeDisplayed.length)
         elementToBeDisplayed[0].classList.remove("notDisplayed");
