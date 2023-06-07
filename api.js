@@ -95,6 +95,7 @@ async function newGame(url, response) {
         "message": "New game started",
         "details": {
             "wordLength": word.length,
+            "status": "playing",
             "errors": errors,
             "maxErrors": maxNbOfError,
             "testedLetters": testedLetters,
@@ -127,6 +128,7 @@ async function testLetter(url, response) {
             "details": {
                 "endpoint": endpoint,
                 "letter": letter,
+                "status": "playing",
                 "errors": errors,
                 "maxErrors": maxNbOfError,
                 "testedLetters": testedLetters,
@@ -144,6 +146,7 @@ async function testLetter(url, response) {
             "details": {
                 "endpoint": endpoint,
                 "letter": letter,
+                "status": "playing",
                 "errors": errors,
                 "maxErrors": maxNbOfError,
                 "testedLetters": testedLetters,
@@ -162,6 +165,7 @@ async function testLetter(url, response) {
                 "endpoint": endpoint,
                 "letter": letter,
                 "found": knownLetters.includes(letter),
+                "status": "playing",
                 "errors": errors,
                 "maxErrors": maxNbOfError,
                 "testedLetters": testedLetters,
@@ -188,6 +192,7 @@ async function testLetter(url, response) {
             "details": {
                 "letter": letter,
                 "found": found,
+                "status": "lost",
                 "errors": errors,
                 "maxErrors": maxNbOfError,
                 "known": knownLetters,
@@ -202,10 +207,11 @@ async function testLetter(url, response) {
         response.statusCode = 200;
         response.setHeader("Content-Type", "application/json");
         response.end(JSON.stringify({
-            "message": "You've wined",
+            "message": "You've won",
             "details": {
                 "letter": letter,
                 "found": found,
+                "status": "won",
                 "errors": errors,
                 "maxErrors": maxNbOfError,
                 "known": knownLetters,
@@ -224,6 +230,7 @@ async function testLetter(url, response) {
         "details": {
             "letter": letter,
             "found": found,
+            "status": "playing",
             "errors": errors,
             "maxErrors": maxNbOfError,
             "testedLetters": testedLetters,

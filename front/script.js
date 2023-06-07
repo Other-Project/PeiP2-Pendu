@@ -37,16 +37,18 @@ function writeWord(details) {
 }
 
 function checkVictoryAndDefeat(response) {
-    let win = response["message"] === "You've wined";
-    let loose = response["message"] === "Game over";
-    if (!win && !loose) return;
+    if (response["details"]["status"] === "playing") return;
 
     let message = document.getElementById("message");
     message.classList.remove("notDisplayed");
-    message.innerText = win ? "Vous avez gagné" : "Vous avez perdu, le mot était " + response["details"]["word"];
+    message.innerText = {
+        "won": "Vous avez gagné",
+        "lost": "Vous avez perdu, le mot était " + response["details"]["word"]
+    }[response["details"]["status"]] ?? response["message"];
+
+    if(response["details"]["status"] !== "won" && response["details"]["status"] !== "lost") return;
     document.getElementById("jouer").classList.remove("notDisplayed");
     document.getElementById("playBtn").innerText = "Rejouer";
-
     for (let letter of document.getElementsByClassName("lettreClavier"))
         letter.setAttribute("disabled", true);
 }
@@ -64,7 +66,7 @@ async function testLetter(btn) {
     if (btn.hasAttribute("disabled")) return;
 
     let response = await fetchAsync("/api/testLetter?letter=" + btn.dataset.letter);
-    if(!response) return; // Request has failed, do nothing
+    if (!response) return; // Request has failed, do nothing
     if (response["details"]["found"]) {
         console.log(btn.dataset.letter + " is in the word", response["details"]["known"]);
         btn.classList.add("good");
@@ -84,8 +86,8 @@ function updateStats(details) {
     document.getElementById("essaisRestants").innerText = (details["maxErrors"] - details["errors"]).toString();
 }
 
-async function fetchAsync(url, retryCount=3) {
-    if(retryCount <= 0) {
+async function fetchAsync(url, retryCount = 3) {
+    if (retryCount <= 0) {
         console.error("Retry count exceeded");
         return null;
     }
@@ -93,10 +95,11 @@ async function fetchAsync(url, retryCount=3) {
     message.classList.remove("notDisplayed");
     message.innerText = "En attente du serveur";
     let response = await fetch(url);
-    if (!response.ok) {
+    if (!response.ok && response.status >= 500) {  // Only retry if the error is server-side, because for a client-side error, retrying won't fix anything
         console.error(`Request errored, retrying (${retryCount--} attempt(s) remaining)`);
-        return await fetchAsync(url,retryCount);
+        return await fetchAsync(url, retryCount);
     }
+    else if(!response.ok) console.warn(`Invalid request`);
     let responseBody = await response.text();
     message.classList.add("notDisplayed");
     return JSON.parse(responseBody);
@@ -106,7 +109,7 @@ async function newGame() {
 
     let difficulty = document.getElementById("playBtn").dataset.difficulty;
     let response = await fetchAsync(`/api/newGame?difficulty=${difficulty}`);
-    if(!response) return; // Request has failed, do nothing
+    if (!response) return; // Request has failed, do nothing
 
     let elementToBeDisplayed = document.getElementsByClassName("notDisplayed");
     while (elementToBeDisplayed.length)
@@ -161,6 +164,6 @@ document.querySelector(".buttonWithDropdown > .openDropdown").addEventListener("
     this.parentElement.classList.toggle("show");
     this.innerText = this.parentElement.classList.contains("show") ? "⏶" : "⏷";
 });
-window.addEventListener("click", function() {
-    for(let dropdown of document.querySelectorAll(".buttonWithDropdown.show")) dropdown.classList.remove("show");
+window.addEventListener("click", function () {
+    for (let dropdown of document.querySelectorAll(".buttonWithDropdown.show")) dropdown.classList.remove("show");
 });
