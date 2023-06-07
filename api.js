@@ -33,14 +33,7 @@ let errors = 0;
     }
 })();
 
-async function getWord(url, response){
-    let getWordResult = await tryGetWord(url, response);
-    if(!getWordResult) return;
 
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "application/json");
-    response.end(JSON.stringify(getWordResult));
-}
 async function tryGetWord(url, response, endpoint = "getWord") {
     let difficulty = url.searchParams.get("difficulty") ?? "medium";
     let min = parseInt(url.searchParams.get("minLetters") ?? defaultMin[difficulty]);
@@ -72,12 +65,27 @@ async function tryGetWord(url, response, endpoint = "getWord") {
     return words[wordLength][Math.floor(Math.random() * words[wordLength].length)];
 }
 
+async function getWord(url, response){
+    let getWordResult = await tryGetWord(url, response);
+    if(!getWordResult) return;
+
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify(getWordResult));
+}
+
 async function newGame(url, response) {
     word = await tryGetWord(url, response, "newGame");
     if (!word) return;
 
-    knownLetters = Array(word.length).fill(" ");
-    testedLetters = [];
+    const lettersOfTheWord = word.split('').filter(function (item, pos) {
+        return word.indexOf(item) === pos; // On ne garde que la première occurrence de la lettre dans le mot
+    }).sort();
+    const minNumberOfLetters = Math.max(lettersOfTheWord.length / 3, 1);
+    const maxNumberOfLetters = lettersOfTheWord.length / 2;
+    const numberOfLetters = Math.floor(Math.max(Math.random() * maxNumberOfLetters, minNumberOfLetters));
+    testedLetters = lettersOfTheWord.slice(0,numberOfLetters);
+    knownLetters = word.split('').map((item) => testedLetters.includes(item) ? item : " ");
     errors = 0;
     console.log("New game started, word to find: " + word);
 

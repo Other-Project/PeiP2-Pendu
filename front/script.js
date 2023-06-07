@@ -1,15 +1,15 @@
-let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-let discoveredLetters = [];
+let alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
 
-function populateKeyboard() {
+function populateKeyboard(discoveredLetters = []) {
     let clavier = document.getElementById("clavier");
     let oldLetters = document.getElementsByClassName("lettreClavier");
     while (oldLetters.length)
         oldLetters[0].remove();
+
     let lettreClavierTemplate = document.getElementById("lettreClavier-template");
     for (let lettre of alphabet) {
         let lettreClavier = document.importNode(lettreClavierTemplate.content, true);
-        lettreClavier.querySelector("span").innerText = lettre;
+        lettreClavier.querySelector("span").innerText = lettre.toUpperCase();
         let lettreClavierBtn = lettreClavier.querySelector("button");
         lettreClavierBtn.id = "clavier-" + lettre;
         lettreClavierBtn.dataset.letter = lettre;
@@ -44,9 +44,8 @@ function checkVictoryAndDefeat(response) {
     let message = document.getElementById("message");
     message.classList.remove("notDisplayed");
     message.innerText = win ? "Vous avez gagné" : "Vous avez perdu, le mot était " + response["details"]["word"];
-    let playBtn = document.getElementById("jouer");
-    playBtn.classList.remove("notDisplayed");
-    playBtn.getElementById("playBtn").innerText = "Rejouer";
+    document.getElementById("jouer").classList.remove("notDisplayed");
+    document.getElementById("playBtn").innerText = "Rejouer";
 
     for (let letter of document.getElementsByClassName("lettreClavier"))
         letter.setAttribute("disabled", true);
@@ -65,8 +64,9 @@ async function testLetter(btn) {
     if (btn.hasAttribute("disabled")) return;
 
     let response = await fetchAsync("/api/testLetter?letter=" + btn.dataset.letter);
+    if(!response) return; // Request has failed, do nothing
     if (response["details"]["found"]) {
-        console.log(btn.dataset.letter + " is in the word", discoveredLetters);
+        console.log(btn.dataset.letter + " is in the word", response["details"]["known"]);
         btn.classList.add("good");
     } else {
         console.log(btn.dataset.letter + " isn't in the word");
@@ -79,35 +79,35 @@ async function testLetter(btn) {
     checkVictoryAndDefeat(response);
 }
 
-//TODO: remove this
-function generateStartingPoint() {
-    const minNumberOfLetters = Math.max(lettersOfTheWord.length / 3, 1);
-    const maxNumberOfLetters = lettersOfTheWord.length / 2;
-    const numberOfLetters = Math.floor(Math.max(Math.random() * maxNumberOfLetters, minNumberOfLetters));
-    console.log("Generating " + numberOfLetters + " letter(s) in " + lettersOfTheWord);
-    for (let i = 0; i < numberOfLetters; i++) {
-        let letter = lettersOfTheWord[Math.floor(Math.random() * lettersOfTheWord.length)];
-        if (!discoveredLetters.includes(letter)) discoveredLetters.push(letter);
-    }
-}
-
 function updateStats(details) {
     document.getElementById("nbErreur").innerText = details["errors"];
     document.getElementById("essaisRestants").innerText = (details["maxErrors"] - details["errors"]).toString();
 }
 
-async function fetchAsync(url) {
+async function fetchAsync(url, retryCount=3) {
+    if(retryCount <= 0) {
+        console.error("Retry count exceeded");
+        return null;
+    }
     let message = document.getElementById("message");
     message.classList.remove("notDisplayed");
     message.innerText = "En attente du serveur";
     let response = await fetch(url);
-    if (!response.ok) return await fetchAsync(url);
-    let mot = await response.text();
+    if (!response.ok) {
+        console.error(`Request errored, retrying (${retryCount--} attempt(s) remaining)`);
+        return await fetchAsync(url,retryCount);
+    }
+    let responseBody = await response.text();
     message.classList.add("notDisplayed");
-    return JSON.parse(mot);
+    return JSON.parse(responseBody);
 }
 
 async function newGame() {
+
+    let difficulty = document.getElementById("playBtn").dataset.difficulty;
+    let response = await fetchAsync(`/api/newGame?difficulty=${difficulty}`);
+    if(!response) return; // Request has failed, do nothing
+
     let elementToBeDisplayed = document.getElementsByClassName("notDisplayed");
     while (elementToBeDisplayed.length)
         elementToBeDisplayed[0].classList.remove("notDisplayed");
@@ -116,17 +116,8 @@ async function newGame() {
     for (let partiePendu of document.getElementsByClassName("perso"))
         partiePendu.classList.add("notDisplayed");
 
-    let difficulty = document.getElementById("playBtn").dataset.difficulty;
-    let response = await fetchAsync(`/api/newGame?difficulty=${difficulty}`);
-    /*lettersOfTheWord = word.split('').filter(function (item, pos) {
-        return word.indexOf(item) === pos; // On ne garde que la première occurrence de la lettre dans le mot
-    }).sort();
-    errors = 0;
-    maxNbOfError = document.getElementsByClassName("perso").length;*/
-    discoveredLetters = response["details"]["known"];
     updateStats(response["details"]);
-    //generateStartingPoint();
-    populateKeyboard();
+    populateKeyboard(response["details"]["known"]);
     writeWord(response["details"]);
 }
 
@@ -146,17 +137,17 @@ document.addEventListener('keydown', async function (event) {
         if (!playBtn.classList.contains("notDisplayed")) await newGame();
     }
 
-    let letter = event.key.toUpperCase();
+    let letter = event.key.toLowerCase();
     if (alphabet.includes(letter)) {
         document.getElementById("clavier-" + letter).classList.add("active");
     }
 });
-document.addEventListener('keyup', function (event) {
-    let letter = event.key.toUpperCase();
+document.addEventListener('keyup', async function (event) {
+    let letter = event.key.toLowerCase();
     if (alphabet.includes(letter)) {
         let keyOnKeyboard = document.getElementById("clavier-" + letter);
         keyOnKeyboard.classList.remove("active");
-        testLetter(keyOnKeyboard);
+        await testLetter(keyOnKeyboard);
     }
 });
 
