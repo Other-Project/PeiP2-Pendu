@@ -67,6 +67,9 @@ async function testLetter(btn) {
 
     let response = await fetchAsync("/api/testLetter?letter=" + btn.dataset.letter);
     if (!response) return; // Request has failed, do nothing
+    checkVictoryAndDefeat(response);
+    if (response["code"] >= 400) return;
+
     if (response["details"]["found"]) {
         console.log(btn.dataset.letter + " is in the word", response["details"]["known"]);
         btn.classList.add("good");
@@ -78,7 +81,6 @@ async function testLetter(btn) {
     btn.setAttribute("disabled", true);
     writeWord(response["details"]);
     updateStats(response["details"]);
-    checkVictoryAndDefeat(response);
 }
 
 function updateStats(details) {
@@ -100,9 +102,10 @@ async function fetchAsync(url, retryCount = 3) {
         return await fetchAsync(url, retryCount);
     }
     else if(!response.ok) console.warn(`Invalid request`);
-    let responseBody = await response.text();
+    let responseBody = JSON.parse(await response.text());
+    responseBody["code"] = response.status;
     message.classList.add("notDisplayed");
-    return JSON.parse(responseBody);
+    return responseBody;
 }
 
 async function newGame() {
