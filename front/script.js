@@ -49,7 +49,7 @@ function checkVictoryAndDefeat(response) {
 
     if (response["details"]["status"] !== "won" && response["details"]["status"] !== "lost") return;
     document.getElementById("jouer").classList.remove("notDisplayed");
-    document.getElementById("playBtn").innerText = "Rejouer";
+    document.getElementById("playTxt").innerText = "Rejouer";
     for (let letter of document.getElementsByClassName("lettreClavier"))
         letter.setAttribute("disabled", true);
     sessionId = null;
