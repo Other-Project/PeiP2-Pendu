@@ -1,7 +1,7 @@
 const uuid = require("uuid");
 const fs = require("fs");
 
-const dicPath = "./lesmiserables.txt";
+const dicPath = "./dico.txt"; //"./lesmiserables.txt";
 const defaultMin = {"easy": 4, "medium": 6, "hard": 9};
 const defaultMax = {"easy": 6, "medium": 8, "hard": 12};
 const maxNbOfError = 6;
